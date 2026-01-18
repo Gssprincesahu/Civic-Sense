@@ -1,6 +1,7 @@
 import bcryptjs from 'bcryptjs';
 import { OAuth2Client } from 'google-auth-library';
 import User from '../models/user.model.js';
+import jwt from 'jsonwebtoken';
 
 export const Signup = async(req,res) => {
   try{
@@ -55,5 +56,80 @@ export const googleSignup = async (req, res) => {
     res.status(200).json({ message: "Google signup successful", user: { id: user._id, username: user.username, email: user.email } });
   } catch (error) {
     res.status(500).json({ message: "Google signup failed" });
+  }
+};
+
+
+export const Login = async(req,res) => {
+  try {
+    const { email, password } = req.body;
+    const user = await User.findOne({email});
+    const isMatch = await bcryptjs.compare(password, user.password );
+    if(!user || !isMatch){
+      return res.status(400).json({message: "Invalid credentials"});
+    }
+    else {
+      // generate jwt token
+      const token = jwt.sign(
+        {
+          userId : user._id,
+          email: user.email
+        },process.env.JWT_SECRET,{expiresIn: '14d'}
+      );
+      
+      //set https only cookie
+
+      res.cookie('token', token,{
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+        maxAge: 14 * 24 * 60 * 60 * 1000, 
+      });
+
+      res.status(200).json({
+        message: "Login successful",
+        user:{
+          _id: user._id,
+          username : user.username,
+          email: user.email,
+        },
+      });
+  }
+}
+catch(error){
+  res.status(500).json({message: "Internal server error"})
+}
+};
+
+export const Logout = async (req,res) => {
+  try {
+    res.clearCookie('token');
+    res.status(200).json({ message: "Logout successful" });
+  } catch (error) {
+    res.status(500).json({ message: "Logout failed" });
+  }
+};
+
+export const verifyToken = async (req, res) => {
+  try {
+    const token = req.cookies.token;
+    if(!token){
+      return res.status(401).json({isAuthenticated: false});
+    }
+
+    const verified = jwt.verify(token, process.env.JWT_SECRET);
+    const user = await User.findById(verified.userId).select('-password');
+
+    res.status(200).json({
+      isAuthenticated: true,
+      user: {
+        _id: user._id,
+        username: user.username,
+        email: user.email,
+      }
+    });
+  }
+  catch (error) {
+    res.status(401).json({ isAuthenticated: false });
   }
 };

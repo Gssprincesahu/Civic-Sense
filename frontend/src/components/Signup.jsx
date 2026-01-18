@@ -2,128 +2,12 @@ import React, { useState, useEffect, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { Link } from "react-router-dom";
 import Modal from "./Modal";
-import Login from "./Login";
 import axios from "axios";
-
-// 3D background imports
-import { Canvas } from "@react-three/fiber";
-import { OrbitControls, Float, Stars } from "@react-three/drei";
-
-// Animated 3D background component
-function AnimatedBackground() {
-  // Track hovered/clicked cube index
-  const [hoveredIdx, setHoveredIdx] = useState(null);
-  const [clickedIdx, setClickedIdx] = useState(null);
-
-  // Animate cubes in a grid
-  const cubes = [];
-  let idx = 0;
-  for (let x = -3; x <= 3; x += 2) {
-    for (let y = -2; y <= 2; y += 2) {
-      cubes.push(
-        <Float key={`${x}-${y}`} speed={1.5 + Math.abs(x + y) * 0.2} rotationIntensity={1.2} floatIntensity={1.2}>
-          <mesh
-            position={[x, y, -2]}
-            scale={
-              clickedIdx === idx
-                ? 1.3
-                : hoveredIdx === idx
-                ? 1.1
-                : 1
-            }
-            onPointerOver={() => setHoveredIdx(idx)}
-            onPointerOut={() => setHoveredIdx(null)}
-            onClick={() => setClickedIdx(clickedIdx === idx ? null : idx)}
-            style={{ cursor: hoveredIdx === idx ? "pointer" : "auto" }}
-          >
-            <boxGeometry args={[0.7, 0.7, 0.7]} />
-            <meshStandardMaterial
-              color={
-                clickedIdx === idx
-                  ? "#f472b6" // pink
-                  : hoveredIdx === idx
-                  ? "#14b8a6" // teal
-                  : "#222"    // black cubes
-              }
-              metalness={0.7}
-              roughness={0.3}
-              opacity={0.95}
-              transparent
-              emissive={hoveredIdx === idx ? "#6366f1" : "#111"}
-              emissiveIntensity={hoveredIdx === idx ? 0.8 : 0.3}
-            />
-          </mesh>
-        </Float>
-      );
-      idx++;
-    }
-  }
-
-  return (
-    <div
-      style={{
-        position: "fixed",
-        inset: 0,
-        zIndex: 0,
-        pointerEvents: "auto",
-        background: "#000", // black background
-      }}
-    >
-      <Canvas camera={{ position: [0, 0, 10], fov: 65 }}>
-        <ambientLight intensity={0.7} color="#222" />
-        <pointLight position={[10, 10, 10]} intensity={0.8} color="#6366f1" />
-        {/* Wireframe grid */}
-        <mesh position={[0, 0, -3]}>
-          <planeGeometry args={[12, 8, 12, 8]} />
-          <meshBasicMaterial color="#333" wireframe opacity={0.3} transparent />
-        </mesh>
-        {/* Interactive cubes */}
-        {cubes}
-        {/* More visible stars */}
-        <Stars
-          radius={30}
-          depth={80}
-          count={2000}
-          factor={4}
-          saturation={0.5}
-          fade
-          speed={2}
-        />
-        {/* Planet with ring */}
-        <Float speed={1.2} rotationIntensity={1.2} floatIntensity={1.2}>
-          <mesh position={[3, 2, -1]}>
-            <sphereGeometry args={[1, 32, 32]} />
-            <meshStandardMaterial color="#6366f1" metalness={0.8} roughness={0.2} emissive="#6366f1" emissiveIntensity={0.5} />
-          </mesh>
-          <mesh position={[3, 2, -1]} rotation={[Math.PI / 2, 0, 0]}>
-            <torusGeometry args={[1.2, 0.08, 16, 100]} />
-            <meshStandardMaterial color="#fbbf24" metalness={0.7} roughness={0.3} emissive="#fbbf24" emissiveIntensity={0.3} transparent opacity={0.7} />
-          </mesh>
-        </Float>
-        {/* Big glowing star */}
-        <Float speed={0.8} rotationIntensity={0.5} floatIntensity={0.5}>
-          <mesh position={[-4, 3, -2]}>
-            <sphereGeometry args={[1.5, 32, 32]} />
-            <meshStandardMaterial
-              color="#fffde4"
-              emissive="#fffde4"
-              emissiveIntensity={2.5}
-              metalness={0.9}
-              roughness={0.1}
-              transparent
-              opacity={0.95}
-            />
-          </mesh>
-        </Float>
-        <OrbitControls enableZoom={true} enablePan={true} autoRotate autoRotateSpeed={1.2} />
-      </Canvas>
-    </div>
-  );
-}
+import Login from "./Login";
 
 export default function Signup() {
   const [showLogin, setShowLogin] = useState(false);
-
+  
   useEffect(() => {
   if (showLogin) {
     document.body.style.overflow = "hidden";
@@ -148,13 +32,13 @@ export default function Signup() {
     setLoading(true);
     setFlash({ type: "", message: "" });
     try {
-      const res = await axios.post("http://localhost:5001/user/signup", {
+      const res = await axios.post("http://localhost:5001/api/user/signup", {
         username: data.username,
         email: data.email,
         password: data.password,
       }, {
         headers: { "Content-Type": "application/json" },
-        withCredentials: true,
+        withCredentials: true
       });
       setFlash({ type: "success", message: res.data?.message || "Account created successfully" });
     } catch (err) {
@@ -170,7 +54,7 @@ export default function Signup() {
     setFlash({ type: "", message: "" });
     try {
       // Send Google token to backend for signup/login
-      const res = await axios.post("http://localhost:5001/user/google-signup", {
+      const res = await axios.post("http://localhost:5001/api/user/google-signup", {
         token: response.credential,
       }, {
         headers: { "Content-Type": "application/json" },
@@ -219,9 +103,35 @@ export default function Signup() {
 
   return (
     
-    <div className="min-h-screen  flex items-center justify-center bg-gradient-to-b 0 py-12 px-4 relative overflow-hidden">
-      {/* 3D Animated Background */}
-      <AnimatedBackground />
+    <div className="min-h-screen  flex items-center justify-center bg-gradient-to-b from-indigo-50 via-purple-50 to-pink-50 py-12 px-4 relative overflow-hidden">
+
+      {/* Animated Background Elements */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        {/* Large floating shapes */}
+        <div className="absolute top-10 left-10 w-72 h-72 bg-gradient-to-r from-purple-300/20 to-indigo-400/20 rounded-full blur-3xl animate-float-slow"></div>
+        <div className="absolute bottom-10 right-10 w-96 h-96 bg-gradient-to-r from-pink-300/20 to-purple-400/20 rounded-full blur-3xl animate-float-reverse"></div>
+        <div className="absolute top-1/2 left-1/3 w-48 h-48 bg-gradient-to-r from-blue-300/15 to-cyan-400/15 rounded-full blur-2xl animate-pulse-slow"></div>
+        
+        {/* Floating particles */}
+        {[...Array(15)].map((_, i) => (
+          <div
+            key={i}
+            className="absolute rounded-full bg-white/20 animate-float-particle"
+            style={{
+              left: `${Math.random() * 100}%`,
+              top: `${Math.random() * 100}%`,
+              width: `${Math.random() * 15 + 8}px`,
+              height: `${Math.random() * 15 + 8}px`,
+              animationDelay: `${Math.random() * 4}s`,
+              animationDuration: `${Math.random() * 4 + 3}s`
+            }}
+          ></div>
+        ))}
+        
+        {/* Moving geometric shapes */}
+        <div className="absolute top-1/4 right-1/4 w-20 h-20 bg-gradient-to-r from-indigo-400/25 to-purple-500/25 rounded-lg rotate-45 animate-rotate-slow"></div>
+        <div className="absolute bottom-1/3 left-1/4 w-16 h-16 bg-gradient-to-r from-pink-400/25 to-red-500/25 rounded-full animate-bounce-gentle"></div>
+      </div>
       
       <div className="w-full max-w-md  relative z-10">
         <div className="bg-white shadow-lg  rounded-2xl overflow-hidden">
@@ -338,22 +248,107 @@ export default function Signup() {
               Login
             </button>
           </div>
+          
           <Modal open={showLogin} onClose={() => setShowLogin(false)}>
-            {/* Animated background for Login modal */}
-            {showLogin && (
-              <div style={{
-                position: "absolute",
-                inset: 0,
-                zIndex: 0,
-                pointerEvents: "none"
-              }}>
-                <AnimatedBackground />
-              </div>
-            )}
-            {/* Login form content */}
-            <div style={{ position: "relative", zIndex: 1 }}>
+            {/* Interactive Background */}
+            <div className="absolute inset-0 overflow-hidden pointer-events-none">
+              {/* Animated background gradient */}
+              <div className="absolute inset-0 bg-gradient-to-br from-purple-600/20 via-blue-500/20 to-indigo-600/20 animate-pulse"></div>
+              
+              {/* Floating particles */}
+              {[...Array(20)].map((_, i) => (
+                <div
+                  key={i}
+                  className="absolute rounded-full bg-white/10 animate-float"
+                  style={{
+                    left: `${Math.random() * 100}%`,
+                    top: `${Math.random() * 100}%`,
+                    width: `${Math.random() * 20 + 10}px`,
+                    height: `${Math.random() * 20 + 10}px`,
+                    animationDelay: `${Math.random() * 3}s`,
+                    animationDuration: `${Math.random() * 3 + 2}s`
+                  }}
+                ></div>
+              ))}
+              
+              {/* Interactive moving shapes */}
+              <div className="absolute top-1/4 left-1/4 w-32 h-32 bg-gradient-to-r from-pink-400/30 to-purple-500/30 rounded-full blur-xl animate-bounce-slow"></div>
+              <div className="absolute bottom-1/4 right-1/4 w-24 h-24 bg-gradient-to-r from-blue-400/30 to-indigo-500/30 rounded-full blur-xl animate-pulse"></div>
+              <div className="absolute top-1/2 right-1/3 w-16 h-16 bg-gradient-to-r from-cyan-400/40 to-blue-500/40 rounded-full blur-lg animate-spin-slow"></div>
+            </div>
+            
+            {/* Modal Content with higher z-index */}
+            <div className="relative z-10 bg-white/95 backdrop-blur-sm rounded-lg">
               <Login onSignupClick={() => setShowLogin(false)} />
             </div>
+            
+            {/* CSS Animations */}
+            <style jsx>{`
+              @keyframes float {
+                0%, 100% { transform: translateY(0px) rotate(0deg); }
+                50% { transform: translateY(-20px) rotate(180deg); }
+              }
+              @keyframes float-slow {
+                0%, 100% { transform: translate(0, 0) scale(1); }
+                33% { transform: translate(30px, -30px) scale(1.05); }
+                66% { transform: translate(-20px, 20px) scale(0.95); }
+              }
+              @keyframes float-reverse {
+                0%, 100% { transform: translate(0, 0) rotate(0deg); }
+                50% { transform: translate(-40px, -40px) rotate(180deg); }
+              }
+              @keyframes float-particle {
+                0%, 100% { transform: translateY(0px) opacity(0.7); }
+                50% { transform: translateY(-30px) opacity(1); }
+              }
+              @keyframes bounce-slow {
+                0%, 100% { transform: translateY(0px) scale(1); }
+                50% { transform: translateY(-10px) scale(1.1); }
+              }
+              @keyframes bounce-gentle {
+                0%, 100% { transform: translateY(0px); }
+                50% { transform: translateY(-15px); }
+              }
+              @keyframes spin-slow {
+                from { transform: rotate(0deg); }
+                to { transform: rotate(360deg); }
+              }
+              @keyframes rotate-slow {
+                from { transform: rotate(45deg); }
+                to { transform: rotate(405deg); }
+              }
+              @keyframes pulse-slow {
+                0%, 100% { opacity: 0.4; transform: scale(1); }
+                50% { opacity: 0.8; transform: scale(1.1); }
+              }
+              .animate-float {
+                animation: float ease-in-out infinite;
+              }
+              .animate-float-slow {
+                animation: float-slow 8s ease-in-out infinite;
+              }
+              .animate-float-reverse {
+                animation: float-reverse 10s ease-in-out infinite;
+              }
+              .animate-float-particle {
+                animation: float-particle ease-in-out infinite;
+              }
+              .animate-bounce-slow {
+                animation: bounce-slow 3s ease-in-out infinite;
+              }
+              .animate-bounce-gentle {
+                animation: bounce-gentle 4s ease-in-out infinite;
+              }
+              .animate-spin-slow {
+                animation: spin-slow 8s linear infinite;
+              }
+              .animate-rotate-slow {
+                animation: rotate-slow 12s linear infinite;
+              }
+              .animate-pulse-slow {
+                animation: pulse-slow 6s ease-in-out infinite;
+              }
+            `}</style>
           </Modal>
         </div>
       </div>

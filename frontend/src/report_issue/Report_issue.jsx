@@ -1,17 +1,14 @@
 import React from 'react'
 import Navbar from '../components/Navbar'
-
+import ReportIssue from '../components/ReportIssue'
 import Footer from '../components/Footer'
-import IssuesPage from '../components/IssuePage';
 
-function Issue() {
+export default function Report_issue() {
   return (
     <div>
       <Navbar/>
-      <IssuesPage/>
+      <ReportIssue/>
       <Footer/>
     </div>
   )
 }
-
-export default Issue;

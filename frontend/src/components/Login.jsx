@@ -1,9 +1,12 @@
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
+import { useAuth } from "../context/AuthProvider";
 
 export default function Login(props) {
+  const { login } = useAuth();
+  const navigate = useNavigate();
 
   const {
     register,
@@ -22,10 +25,14 @@ export default function Login(props) {
       password: data.password,
     };
     try {
-      const res = await axios.post("http://localhost:5001/user/signin", userinfo);
+      const res = await axios.post("http://localhost:5001/api/user/Login", userinfo, {
+        withCredentials: true
+      });
       if (res.data) {
         setFlash({ type: "success", message: "Login successful!" });
         localStorage.setItem("Users", JSON.stringify(res.data.user));
+        login(res.data.user); // Update auth context
+        setTimeout(() => navigate('/'), 1000); // Redirect after 1 second
       }
     } catch (err) {
       if (err.response) {

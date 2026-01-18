@@ -14,8 +14,12 @@ const userSchema = new mongoose.Schema({
     password: {
         type: String,
         required: true, 
-    },   
-});
+    },  
+     googleId: {
+        type: String,
+        default: null,
+    }, 
+},{ timestamps: true});
 
 const User = mongoose.model("User", userSchema);
 

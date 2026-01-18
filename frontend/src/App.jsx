@@ -3,9 +3,9 @@ import { Routes, Route } from "react-router-dom";
 import Main from './Main/Main'
 import Leader from './leaderboard/Leader';
 import Map from './Map/Map';
-import Issue from './components/IssuePage';
-import Signup from './components/Signup';
-
+import Issue from './Issue/Issue';
+import Signup from './signup/SignupPage';
+import ReportIssue from './report_issue/report_issue';
 
 const App = () => {
   return (
@@ -14,7 +14,8 @@ const App = () => {
       <Route path="/leaderboard" element={<Leader/>} />
       <Route path="/Map" element={<Map/>}/>
       <Route path="/Issue" element={<Issue/>} />
-      <Route path="/signup" element={<Signup/>} />
+      <Route path="/Signup" element={<Signup/>} />
+      <Route path = "/ReportIssue" element = {<ReportIssue/>}/>
     </Routes>
   )
 }

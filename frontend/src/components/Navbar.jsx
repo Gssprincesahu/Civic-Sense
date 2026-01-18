@@ -1,87 +1,192 @@
-import React from "react";
-
-
-import { Link } from "react-router-dom";
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import map1 from "../assets/map1.png";
 import issue1 from "../assets/issue1.png";
 import home1 from "../assets/home1.png";
 import leaderboard1 from "../assets/leaderboard1.png";
+import { useAuth } from "../context/AuthProvider";
 
 
 const Navbar = () => {
+  const [isOpen, setIsOpen] = useState(false);
+  const { isAuthenticated, authUser, logout, loading } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    await logout();
+    navigate('/');
+  };
+
   return (
-    <nav className="w-full bg-gradient-to-r from-indigo-900 via-purple-700 to-pink-600 text-slate-50 shadow-sm">
+    <nav className="bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-700 text-white shadow-md relative">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16 items-center">
-          {/* Logo */}
-          <div className="flex items-center space-x-3">
-            <span className="w-10 h-10 flex items-center justify-center rounded-full bg-gradient-to-br from-indigo-400 via-purple-500 to-pink-400 shadow-lg">
-              {/* compact SVG monogram */}
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
-                <rect x="1" y="1" width="22" height="22" rx="5" fill="rgba(255,255,255,0.08)"/>
-                <path d="M6 16V8h3.2l2.8 4.5L15.8 8H19v8h-2.2v-4.5L14 13.5 11.2 11V16H6z" fill="white"/>
-              </svg>
+          
+          {/* Logo / Name with animation */}
+          <Link to="/" className="flex items-center space-x-2 group">
+            <span className="text-2xl font-bold transform transition-all duration-300 group-hover:scale-110 group-hover:text-green-200">
+              Naagrik
             </span>
-            <div className="leading-tight">
-              <div className="text-white text-lg md:text-xl font-semibold bg-clip-text  bg-gradient-to-r from-white to-pink-100">
-                Naagrik
-              </div>
-              <div className="text-xs text-indigo-100">Report & Resolve</div>
-            </div>
-          </div>
+          </Link>
 
-          {/* Desktop Menu */}
-          <div className="hidden md:flex items-center gap-6">
-            <Link to="/" className="text-indigo-100 hover:text-white transition-colors flex items-center gap-2">
-              <img src={home1} alt="Logo" className="h-6 w-6" />
-              <span>Home</span>
+          {/* Desktop Menu with enhanced animations */}
+          <div className="hidden md:flex items-center space-x-8">
+            <Link to="/" className="flex items-center space-x-1 group relative overflow-hidden px-3 py-2 rounded-lg transition-all duration-300 hover:bg-white/10">
+              <img src={home1} alt="Home" className="h-6 w-6 transform transition-transform duration-300 group-hover:scale-110 group-hover:rotate-12" />
+              <span className="transform transition-all duration-300 group-hover:text-green-200">Home</span>
+              <div className="absolute bottom-0 left-0 w-0 h-0.5 bg-white transition-all duration-300 group-hover:w-full"></div>
             </Link>
-            <Link
-              to="/Issue"
-              className="text-indigo-100 hover:text-white transition-colors"
-            >
-              <div className="flex items-center gap-2">
-                <img src={issue1} alt="Logo" className="h-6 w-6" />
-                <span>Issue</span>
-              </div>
+            
+            <Link to="/Issue" className="flex items-center space-x-1 group relative overflow-hidden px-3 py-2 rounded-lg transition-all duration-300 hover:bg-white/10">
+              <img src={issue1} alt="Issue" className="h-6 w-6 transform transition-transform duration-300 group-hover:scale-110 group-hover:rotate-12" />
+              <span className="transform transition-all duration-300 group-hover:text-green-200">Issue</span>
+              <div className="absolute bottom-0 left-0 w-0 h-0.5 bg-white transition-all duration-300 group-hover:w-full"></div>
             </Link>
-            <Link
-              to="/Map"
-              className="text-indigo-100 hover:text-white transition-colors"
-            >
-              <div className="flex items-center gap-2">
-                <img src={map1} alt="Logo" className="h-6 w-6" />
-                <span>Map View</span>
-              </div>
+            
+            <Link to="/Map" className="flex items-center space-x-1 group relative overflow-hidden px-3 py-2 rounded-lg transition-all duration-300 hover:bg-white/10">
+              <img src={map1} alt="Map" className="h-6 w-6 transform transition-transform duration-300 group-hover:scale-110 group-hover:rotate-12" />
+              <span className="transform transition-all duration-300 group-hover:text-green-200">Map View</span>
+              <div className="absolute bottom-0 left-0 w-0 h-0.5 bg-white transition-all duration-300 group-hover:w-full"></div>
             </Link>
-            <Link
-              to="/leaderboard"
-              className="text-indigo-100 hover:text-white transition-colors"
-            >
-              <div className="flex items-center gap-2">
-                <img src={leaderboard1} alt="Logo" className="h-6 w-6" />
-                <span>Leaderboard</span>
-              </div>
+            
+            <Link to="/Leaderboard" className="flex items-center space-x-1 group relative overflow-hidden px-3 py-2 rounded-lg transition-all duration-300 hover:bg-white/10">
+              <img src={leaderboard1} alt="Leaderboard" className="h-6 w-6 transform transition-transform duration-300 group-hover:scale-110 group-hover:rotate-12" />
+              <span className="transform transition-all duration-300 group-hover:text-green-200">Leaderboard</span>
+              <div className="absolute bottom-0 left-0 w-0 h-0.5 bg-white transition-all duration-300 group-hover:w-full"></div>
             </Link>
           </div>
 
-          {/* Right Side Buttons */}
+          {/* Right Side Buttons with animations */}
           <div className="hidden md:flex items-center gap-4">
-            <Link to="/issues" className="px-3 py-1.5 rounded-md text-sm font-medium bg-white/10 text-white hover:bg-white/20 transition">
-               Report Issue
-             </Link>
-             <Link to="/Signup" className="px-3 py-1.5 rounded-md text-sm font-medium bg-white text-indigo-700 hover:opacity-95 transition">
-               Sign up
-             </Link>
-           </div>
-
-          {/* Mobile menu toggle */}
-          <div className="md:hidden">
-            {/* ...existing code... (you can add a hamburger button here if desired) */}
+            {/* Protected "Report Issue" Button - Only shows when authenticated */}
+            {!loading && isAuthenticated && (
+              <Link to="/ReportIssue" className="relative px-4 py-2 rounded-md text-sm font-medium bg-white/10 text-white overflow-hidden group transition-all duration-300 hover:scale-105 hover:shadow-lg">
+                <span className="relative z-10 transition-colors duration-300">Report Issue</span>
+                <div className="absolute inset-0 bg-white/20 transform -translate-x-full transition-transform duration-300 group-hover:translate-x-0"></div>
+              </Link>
+            )}
+            
+            {/* Authentication Section */}
+            {!loading && (
+              <>
+                {isAuthenticated ? (
+                  <div className="flex items-center gap-3">
+                    <span className="text-sm font-medium bg-white/10 px-3 py-1.5 rounded-lg">
+                      Welcome, {authUser?.username}
+                    </span>
+                    <button 
+                      onClick={handleLogout} 
+                      className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 transition-all duration-300 hover:scale-105 hover:shadow-lg font-medium"
+                    >
+                      Logout
+                    </button>
+                  </div>
+                ) : (
+                  <Link to="/Signup" className="relative px-4 py-2 rounded-md text-sm font-medium bg-white text-green-600 overflow-hidden group transition-all duration-300 hover:scale-105 hover:shadow-lg transform hover:-translate-y-0.5">
+                    <span className="relative z-10 font-semibold">Sign up</span>
+                    <div className="absolute inset-0 bg-green-100 transform scale-0 transition-transform duration-300 group-hover:scale-100 rounded-md"></div>
+                  </Link>
+                )}
+              </>
+            )}
           </div>
+
+          {/* Mobile Menu Button with animation */}
+          <div className="md:hidden">
+            <button 
+              onClick={() => setIsOpen(!isOpen)}
+              className="p-2 rounded-lg transition-all duration-300 hover:bg-white/10 transform hover:scale-110"
+            >
+              <svg
+                className={`h-6 w-6 text-white transition-transform duration-300 ${isOpen ? 'rotate-180' : 'rotate-0'}`}
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                {isOpen ? (
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                ) : (
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                )}
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Mobile Menu with slide animation */}
+      <div className={`md:hidden bg-green-600 overflow-hidden transition-all duration-300 ease-in-out ${
+        isOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
+      }`}>
+        <div className="px-4 pb-3 space-y-2">
+          <Link 
+            to="/" 
+            className="block py-2 px-3 rounded-lg transition-all duration-200 hover:bg-white/10 hover:text-green-200 transform hover:translate-x-2"
+            onClick={() => setIsOpen(false)}
+          >
+            Home
+          </Link>
+          <Link 
+            to="/Issue" 
+            className="block py-2 px-3 rounded-lg transition-all duration-200 hover:bg-white/10 hover:text-green-200 transform hover:translate-x-2"
+            onClick={() => setIsOpen(false)}
+          >
+            Issue
+          </Link>
+          <Link 
+            to="/Map" 
+            className="block py-2 px-3 rounded-lg transition-all duration-200 hover:bg-white/10 hover:text-green-200 transform hover:translate-x-2"
+            onClick={() => setIsOpen(false)}
+          >
+            Map View
+          </Link>
+          <Link 
+            to="/Leaderboard" 
+            className="block py-2 px-3 rounded-lg transition-all duration-200 hover:bg-white/10 hover:text-green-200 transform hover:translate-x-2"
+            onClick={() => setIsOpen(false)}
+          >
+            Leaderboard
+          </Link>
+          
+          {/* Mobile Auth Section */}
+          {!loading && isAuthenticated && (
+            <Link 
+              to="/ReportIssue" 
+              className="block py-2 px-3 bg-white/10 rounded-lg transition-all duration-200 hover:bg-white/20 transform hover:translate-x-2"
+              onClick={() => setIsOpen(false)}
+            >
+              Report Issue
+            </Link>
+          )}
+          
+          {!loading && (
+            <>
+              {isAuthenticated ? (
+                <>
+                  <div className="py-2 px-3 text-sm">Welcome, {authUser?.username}</div>
+                  <button 
+                    onClick={() => { handleLogout(); setIsOpen(false); }}
+                    className="block w-full text-left text-white bg-red-500 px-4 py-2 rounded-lg font-semibold transition-all duration-300 hover:bg-red-600 hover:shadow-md"
+                  >
+                    Logout
+                  </button>
+                </>
+              ) : (
+                <Link 
+                  to="/Signup"
+                  onClick={() => setIsOpen(false)}
+                  className="block w-full text-center text-green-600 bg-white px-4 py-2 rounded-lg mt-3 font-semibold transition-all duration-300 hover:bg-green-50 hover:shadow-md transform hover:scale-105"
+                >
+                  Sign up
+                </Link>
+              )}
+            </>
+          )}
         </div>
       </div>
     </nav>
   );
 };
+
 export default Navbar;
