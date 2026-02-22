@@ -32,17 +32,23 @@ export const Signup = async(req,res) => {
 });
     }
     catch(error){
-        console.error('Signup error:', error);
-        res.status(500).json({message: "Something went wrong"});
+        console.error('Signup error details:', error);
+        res.status(500).json({message: "Something went wrong", error: error.message});
   }
 };
 
 export const googleSignup = async (req, res) => {
   try {
-    const client = new OAuth2Client('YOUR_GOOGLE_CLIENT_ID');
+    const googleClientId = process.env.GOOGLE_CLIENT_ID;
+    if (!googleClientId) {
+      console.error('GOOGLE_CLIENT_ID not configured in environment variables');
+      return res.status(500).json({ message: "Google authentication not configured" });
+    }
+    
+    const client = new OAuth2Client(googleClientId);
     const ticket = await client.verifyIdToken({
       idToken: req.body.token,
-      audience: 'YOUR_GOOGLE_CLIENT_ID',
+      audience: googleClientId,
     });
     const payload = ticket.getPayload();
     const email = payload.email;
@@ -53,9 +59,27 @@ export const googleSignup = async (req, res) => {
       user = new User({ username, email, password: '' });
       await user.save();
     }
+    
+    // Generate JWT token for Google signup
+    const token = jwt.sign(
+      {
+        userId: user._id,
+        email: user.email
+      }, process.env.JWT_SECRET, { expiresIn: '14d' }
+    );
+    
+    // Set HTTP only cookie
+    res.cookie('token', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: 14 * 24 * 60 * 60 * 1000,
+    });
+    
     res.status(200).json({ message: "Google signup successful", user: { id: user._id, username: user.username, email: user.email } });
   } catch (error) {
-    res.status(500).json({ message: "Google signup failed" });
+    console.error('Google signup error:', error);
+    res.status(500).json({ message: "Google signup failed", error: error.message });
   }
 };
 

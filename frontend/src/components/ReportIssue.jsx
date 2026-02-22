@@ -7,6 +7,7 @@ import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import { FaMapMarkerAlt, FaCrosshairs, FaTrash, FaTimes, FaCheck } from "react-icons/fa";
 import axios from 'axios';
+import { set } from 'mongoose';
 
 // Fix for default marker icon in Leaflet and create custom purple marker
 delete L.Icon.Default.prototype._getIconUrl;
@@ -82,6 +83,8 @@ export default function ReportIssue() {
   const [zipCode, setZipCode] = useState('');
   const [country, setCountry] = useState('');
   const [loadingAddress, setLoadingAddress] = useState(false);
+  const [imageFile, setImageFile] = useState(null);
+  const [imagePreview, setImagePreview] = useState(null);
 
   // Reverse geocoding using Nominatim API
   const getAddressFromCoords = async (lat, lng) => {
@@ -165,6 +168,16 @@ export default function ReportIssue() {
     setShowConfirmModal(false);
   };
 
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if(file) {
+      setImageFile(file);
+      setImagePreview(URL.createObjectURL(file));
+    }
+  };
+
+
+
   // Open modal when temp position is set
   React.useEffect(() => {
     if (tempPosition) {
@@ -196,7 +209,7 @@ export default function ReportIssue() {
    */
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     // Validate required fields
     if (!title.trim() || !description.trim() || !location.trim()) {
       setStatusMsg('Please fill out title, description, and location.');
@@ -204,36 +217,41 @@ export default function ReportIssue() {
     }
 
     try {
-      setStatusMsg('Saving issue...');
+      setStatusMsg('Uploading image and saving issue...');
       
-      // Prepare the data object to send to backend
-      // This must match the schema defined in data.model.js
-      const issueData = {
-        title: title.trim(),
-        description: description.trim(),
-        category,                    
-        priority,                   
-        location: location.trim(),   
-        address: address.trim(),    
-        city: city.trim(),          
-        state: state.trim(),         
-        zipCode: zipCode.trim(),     
-        country: country.trim(),     
-        coordinates: mapPosition ? { // GPS coordinates from map selection
+      // Create FormData to send file + data
+      const formDataToSend = new FormData();
+      
+      // Append all form fields
+      formDataToSend.append('title', title.trim());
+      formDataToSend.append('description', description.trim());
+      formDataToSend.append('category', category);
+      formDataToSend.append('priority', priority);
+      formDataToSend.append('location', location.trim());
+      formDataToSend.append('address', address.trim());
+      formDataToSend.append('city', city.trim());
+      formDataToSend.append('state', state.trim());
+      formDataToSend.append('zipCode', zipCode.trim());
+      formDataToSend.append('country', country.trim());
+      
+      // Append coordinates as JSON string
+      if (mapPosition) {
+        formDataToSend.append('coordinates', JSON.stringify({
           lat: mapPosition[0],
           lng: mapPosition[1]
-        } : null,
-        image: photos.length > 0 ? photos[0].name : undefined 
-      };
+        }));
+      }
+      
+      // Append image file if selected
+      if (imageFile) {
+        formDataToSend.append('image', imageFile);
+      }
 
       // IMPORTANT: Send POST request to backend API
       // Make sure backend server is running on localhost:5001
-      const response = await fetch('http://localhost:5001/api/issues', {
+      const response = await fetch('http://localhost:5001/api/issues/create', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json', // Tell server we're sending JSON
-        },
-        body: JSON.stringify(issueData) // Convert object to JSON string
+        body: formDataToSend // Send FormData (DO NOT set Content-Type header, browser sets it automatically with boundary)
       });
 
       // Parse the response from server
@@ -241,7 +259,7 @@ export default function ReportIssue() {
 
       // Check if save was successful
       if (response.ok && data.success) {
-        setStatusMsg('✅ Issue saved successfully!');
+        setStatusMsg('✅ Issue saved successfully with image uploaded to Cloudinary!');
         
         // Clear form after 2 seconds to allow user to see success message
         setTimeout(() => {
@@ -258,6 +276,8 @@ export default function ReportIssue() {
           setState('');
           setZipCode('');
           setCountry('');
+          setImageFile(null);
+          setImagePreview(null);
           setStatusMsg('');
         }, 2000);
       } else {
@@ -271,9 +291,9 @@ export default function ReportIssue() {
     }
   };
   return (
-    <div className="min-h-screen bg-[#f7fafc] p-0 sm:p-0 relative">
+    <div className="min-h-screen bg-[#002147] p-0 sm:p-0 relative">
       {/* Back Button */}
-      <Link to='/' className='absolute left-4 top-4 flex items-center gap-1 text-black hover:bg-gray-200 px-3 py-1.5 rounded-lg font-semibold transition duration-200 z-10'>
+      <Link to='/' className='absolute left-4 top-4 flex items-center gap-1 text-white hover:bg-white/10 px-3 py-1.5 rounded-lg font-semibold transition duration-200 z-10'>
         <IoIosArrowRoundBack className='text-2xl' /> Back
       </Link>
 
@@ -281,39 +301,39 @@ export default function ReportIssue() {
       <div className="w-full max-w-6xl mx-auto flex flex-col items-center pt-16 pb-8">
         {/* Icon */}
         <div className='flex justify-center items-center mb-2'>
-          <div className='bg-green-500 shadow-lg p-4 rounded-full flex items-center justify-center'>
-            <FiAlertTriangle className='text-white text-4xl' />
+          <div className='bg-[#F4C430] shadow-lg p-4 rounded-full flex items-center justify-center'>
+            <FiAlertTriangle className='text-[#002147] text-4xl' />
           </div>
         </div>
         {/* Title */}
-        <h1 className='text-5xl font-bold text-green-700 text-center mb-2 mt-2'>Create Issue Report</h1>
+        <h1 className='text-5xl font-bold text-[#F4C430] text-center mb-2 mt-2'>Create Issue Report</h1>
         {/* Subtitle */}
-        <p className='text-center text-2xl text-gray-600 max-w-2xl mb-6'>
+        <p className='text-center text-2xl text-gray-300 max-w-2xl mb-6'>
           Report community issues with precise location mapping. Click on the map to pinpoint the exact location of the problem.
         </p>
 
         {/* Emergency Alert Box */}
-        <div className='w-full bg-red-50 rounded-2xl shadow-md p-7 mt-2 mb-2 border border-red-100'>
+        <div className='w-full bg-red-900/30 rounded-2xl shadow-md p-7 mt-2 mb-2 border border-red-700/50'>
           <div className='flex items-center gap-3 mb-2'>
-            <FiAlertTriangle className='text-red-500 text-3xl' />
-            <span className='text-2xl font-bold text-red-700'>Emergency Situations</span>
+            <FiAlertTriangle className='text-red-400 text-3xl' />
+            <span className='text-2xl font-bold text-red-300'>Emergency Situations</span>
           </div>
-          <div className='text-lg text-red-700 mb-4'>
+          <div className='text-lg text-red-200 mb-4'>
             For immediate emergencies requiring police, fire, or medical assistance, please call emergency services directly.
           </div>
           <div className='flex flex-wrap gap-4'>
-            <div className='flex items-center gap-2 bg-red-200 text-red-700 px-5 py-2 rounded-lg font-semibold text-lg'>
+            <div className='flex items-center gap-2 bg-red-700/50 text-red-100 px-5 py-2 rounded-lg font-semibold text-lg'>
               <span className='text-xl'>📞</span> Emergency: 911
             </div>
-            <div className='flex items-center gap-2 bg-red-200 text-red-700 px-5 py-2 rounded-lg font-semibold text-lg'>
+            <div className='flex items-center gap-2 bg-red-700/50 text-red-100 px-5 py-2 rounded-lg font-semibold text-lg'>
               <span className='text-xl'>📞</span> Non-Emergency: 311
             </div>
           </div>
         </div>
         <div className='flex mt-4 w-full flex-col md:flex-row gap-6'>
           {/* Left: Issue Section */}
-          <div className='md:w-1/2 w-full bg-white rounded-2xl shadow-md p-6 border border-gray-200'>
-            <h2 className='text-2xl font-semibold text-gray-800 mb-4'>Issue Details</h2>
+          <div className='md:w-1/2 w-full bg-white/95 rounded-2xl shadow-md p-6 border border-gray-300'>
+            <h2 className='text-2xl font-semibold text-[#002147] mb-4'>Issue Details</h2>
             <form onSubmit={handleSubmit} className='space-y-4'>
               <div>
                 <label className='block text-sm font-medium text-gray-700 mb-1'>Title</label>
@@ -322,7 +342,7 @@ export default function ReportIssue() {
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                   placeholder="e.g., Broken streetlight"
-                  className='w-full rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500'
+                  className='w-full rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#F4C430] focus:border-[#F4C430]'
                 />
               </div>
               <div>
@@ -330,7 +350,7 @@ export default function ReportIssue() {
                 <select
                   value={category}
                   onChange={(e) => setCategory(e.target.value)}
-                  className='w-full rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-white'
+                  className='w-full rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#F4C430] focus:border-[#F4C430] bg-white'
                 >
                   <option value="infrastructure">Infrastructure</option>
                   <option value="safety">Safety</option>
@@ -347,7 +367,7 @@ export default function ReportIssue() {
                   onChange={(e) => setDescription(e.target.value)}
                   placeholder="Provide details about the issue..."
                   rows={5}
-                  className='w-full rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 resize-none overflow-y-auto max-h-40'
+                  className='w-full rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#F4C430] focus:border-[#F4C430] resize-none overflow-y-auto max-h-40'
                 />
               </div>
               <div>
@@ -357,7 +377,7 @@ export default function ReportIssue() {
                   value={location}
                   onChange={(e) => setLocation(e.target.value)}
                   placeholder="e.g., 123 Main St, Springfield"
-                  className='w-full rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500'
+                  className='w-full rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#F4C430] focus:border-[#F4C430]'
                 />
                 <p className='text-xs text-gray-500 mt-1'>Tip: You can paste an address or landmark name.</p>
               </div>
@@ -370,7 +390,7 @@ export default function ReportIssue() {
                     onClick={() => setPriority('low')}
                     className={`flex-1 px-4 py-3 rounded-lg font-medium transition ${
                       priority === 'low'
-                        ? 'bg-green-600 text-white shadow-md'
+                        ? 'bg-[#10B981] text-white shadow-md'
                         : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
                     }`}
                   >
@@ -382,7 +402,7 @@ export default function ReportIssue() {
                     onClick={() => setPriority('medium')}
                     className={`flex-1 px-4 py-3 rounded-lg font-medium transition ${
                       priority === 'medium'
-                        ? 'bg-yellow-500 text-white shadow-md'
+                        ? 'bg-[#F4C430] text-[#002147] shadow-md'
                         : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
                     }`}
                   >
@@ -411,13 +431,16 @@ export default function ReportIssue() {
                   type='file'
                   accept='image/*,video/*'
                   multiple
-                  onChange={handlePhotoUpload}
+                  onChange={handleImageChange}
                   className='hidden'
                   id='media-upload'
                 />
+                {imagePreview && (
+                  <img src = {imagePreview} alt="Preview" className='mb-3 max-h-48 rounded-lg object-cover border border-gray-300' />
+                )}
                 <label
                   htmlFor='media-upload'
-                  className='flex items-center justify-center w-full border-2 border-dashed border-gray-300 rounded-lg px-4 py-8 cursor-pointer hover:border-green-500 hover:bg-green-50 transition'
+                  className='flex items-center justify-center w-full border-2 border-dashed border-gray-300 rounded-lg px-4 py-8 cursor-pointer hover:border-[#F4C430] hover:bg-yellow-50 transition'
                 >
                   <div className='text-center'>
                     <div className='flex justify-center gap-3 text-3xl mb-2'>
@@ -472,7 +495,7 @@ export default function ReportIssue() {
               <div className='flex items-center gap-3'>
                 <button
                   type='submit'
-                  className='bg-green-600 hover:bg-green-700 text-white font-semibold px-5 py-2 rounded-lg transition'
+                  className='bg-[#10B981] hover:bg-[#059669] text-white font-semibold px-5 py-2 rounded-lg transition'
                 >
                   Submit Issue
                 </button>
@@ -488,12 +511,12 @@ export default function ReportIssue() {
           </div>
 
           {/* Right: Location Section (map or details) */}
-          <div className='md:w-1/2 w-full bg-white rounded-2xl shadow-md p-6 border border-gray-200'>
-            <h2 className='text-2xl font-semibold text-gray-800 mb-2 flex items-center gap-2'>
-              <FaMapMarkerAlt className='text-green-600' />
+          <div className='md:w-1/2 w-full bg-white/95 rounded-2xl shadow-md p-6 border border-gray-300'>
+            <h2 className='text-2xl font-semibold text-[#002147] mb-2 flex items-center gap-2'>
+              <FaMapMarkerAlt className='text-[#F4C430]' />
               Location Mapping
             </h2>
-            <p className='text-gray-600 mb-4 text-sm'>
+            <p className='text-gray-700 mb-4 text-sm'>
               Double-click on the map to select location, then fill in or edit address details below.
             </p>
             
@@ -518,8 +541,8 @@ export default function ReportIssue() {
               
               {/* Map Overlay Instruction */}
               {!mapPosition && (
-                <div className='absolute top-4 left-1/2 transform -translate-x-1/2 bg-white/95 backdrop-blur-sm px-4 py-2 rounded-lg shadow-lg border border-green-200 z-[1000] pointer-events-none'>
-                  <div className='flex items-center gap-2 text-sm font-medium text-green-700'>
+                <div className='absolute top-4 left-1/2 transform -translate-x-1/2 bg-[#002147] backdrop-blur-sm px-4 py-2 rounded-lg shadow-lg border border-[#F4C430] z-[1000] pointer-events-none'>
+                  <div className='flex items-center gap-2 text-sm font-medium text-[#F4C430]'>
                     <FaCrosshairs className='animate-pulse' />
                     <span>Double-click to select location</span>
                   </div>
@@ -545,7 +568,7 @@ export default function ReportIssue() {
                     </div>
                     <button
                       onClick={handleConfirmLocation}
-                      className='w-full bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white font-bold py-3 px-6 rounded-xl transition-all duration-300 shadow-md hover:shadow-lg'
+                      className='w-full bg-[#F4C430] hover:bg-[#E6B800] text-[#002147] font-bold py-3 px-6 rounded-xl transition-all duration-300 shadow-md hover:shadow-lg'
                     >
                       Confirm This Location
                     </button>
@@ -555,10 +578,10 @@ export default function ReportIssue() {
             </div>
 
             {/* Location Details Section Below Map - Always visible */}
-            <div className={`mt-6 bg-white border-2 ${mapPosition || address || city ? 'border-purple-200' : 'border-gray-200'} rounded-2xl shadow-lg p-5 transition-all duration-300`}>
+            <div className={`mt-6 bg-white border-2 ${mapPosition || address || city ? 'border-[#F4C430]' : 'border-gray-200'} rounded-2xl shadow-lg p-5 transition-all duration-300`}>
               <div className='flex items-center gap-3 mb-4 pb-3 border-b border-gray-200'>
-                <div className={`${mapPosition || address || city ? 'bg-purple-100' : 'bg-gray-100'} p-2 rounded-full transition-colors`}>
-                  <FaMapMarkerAlt className={`${mapPosition || address || city ? 'text-purple-600' : 'text-gray-400'} text-xl transition-colors`} />
+                <div className={`${mapPosition || address || city ? 'bg-[#F4C430]/20' : 'bg-gray-100'} p-2 rounded-full transition-colors`}>
+                  <FaMapMarkerAlt className={`${mapPosition || address || city ? 'text-[#F4C430]' : 'text-gray-400'} text-xl transition-colors`} />
                 </div>
                 <h3 className='text-xl font-bold text-gray-800'>Location Details</h3>
               </div>
@@ -592,7 +615,7 @@ export default function ReportIssue() {
                         value={address}
                         onChange={(e) => setAddress(e.target.value)}
                         placeholder="Street Address"
-                        className='w-full rounded-lg border border-purple-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 bg-white text-gray-800 placeholder-gray-400'
+                        className='w-full rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#F4C430] focus:border-[#F4C430] bg-white text-gray-800 placeholder-gray-400'
                       />
                       <div className='grid grid-cols-2 gap-3'>
                         <input
@@ -600,14 +623,14 @@ export default function ReportIssue() {
                           value={city}
                           onChange={(e) => setCity(e.target.value)}
                           placeholder="City"
-                          className='w-full rounded-lg border border-purple-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 bg-white text-gray-800 placeholder-gray-400'
+                          className='w-full rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#F4C430] focus:border-[#F4C430] bg-white text-gray-800 placeholder-gray-400'
                         />
                         <input
                           type="text"
                           value={state}
                           onChange={(e) => setState(e.target.value)}
                           placeholder="State/Province"
-                          className='w-full rounded-lg border border-purple-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 bg-white text-gray-800 placeholder-gray-400'
+                          className='w-full rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#F4C430] focus:border-[#F4C430] bg-white text-gray-800 placeholder-gray-400'
                         />
                       </div>
                       <div className='grid grid-cols-2 gap-3'>
@@ -616,14 +639,14 @@ export default function ReportIssue() {
                           value={zipCode}
                           onChange={(e) => setZipCode(e.target.value)}
                           placeholder="ZIP/Postal Code"
-                          className='w-full rounded-lg border border-purple-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 bg-white text-gray-800 placeholder-gray-400'
+                          className='w-full rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#F4C430] focus:border-[#F4C430] bg-white text-gray-800 placeholder-gray-400'
                         />
                         <input
                           type="text"
                           value={country}
                           onChange={(e) => setCountry(e.target.value)}
                           placeholder="Country"
-                          className='w-full rounded-lg border border-purple-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 bg-white text-gray-800 placeholder-gray-400'
+                          className='w-full rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#F4C430] focus:border-[#F4C430] bg-white text-gray-800 placeholder-gray-400'
                         />
                       </div>
                     </div>
@@ -651,7 +674,7 @@ export default function ReportIssue() {
                   disabled={!address && !city && !mapPosition}
                   className={`flex-1 ${
                     address || city || mapPosition
-                      ? 'bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white shadow-md hover:shadow-lg' 
+                      ? 'bg-[#10B981] hover:bg-[#059669] text-white shadow-md hover:shadow-lg' 
                       : 'bg-gray-200 text-gray-400 cursor-not-allowed'
                   } font-bold py-3 px-6 rounded-xl transition-all duration-300 flex items-center justify-center gap-2`}
                 >

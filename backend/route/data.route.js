@@ -12,7 +12,7 @@ import {upload} from '../config/cloudinary.js';
 const router = express.Router();
 
 router.post('/create', upload.single('image'), createIssue);
-router.get('/all', getAllIssues);
+router.get('/', getAllIssues);
 router.get('/:id', getIssueById);
 router.put('/:id', updateIssue);
 router.delete('/:id', deleteIssue);

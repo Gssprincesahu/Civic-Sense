@@ -46,12 +46,12 @@ export default function Login(props) {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-gray-50 to-gray-100 py-12 px-4">
+    <div className="min-h-screen flex items-center justify-center bg-[#002147] py-12 px-4">
       <div className="w-full max-w-md">
-        <div className="bg-white shadow-lg rounded-2xl overflow-hidden">
+        <div className="bg-white/95 shadow-lg rounded-2xl overflow-hidden">
           <div className="p-6 sm:p-8">
             <div className="flex items-center gap-4 mb-4">
-              <div className="w-12 h-12 flex items-center justify-center rounded-full bg-gradient-to-br from-indigo-400 via-purple-500 to-pink-400">
+              <div className="w-12 h-12 flex items-center justify-center rounded-full bg-[#F4C430]">
                 {/* inline logo */}
                 <svg
                   width="22"
@@ -67,19 +67,19 @@ export default function Login(props) {
                     width="22"
                     height="22"
                     rx="5"
-                    fill="rgba(255,255,255,0.12)"
+                    fill="rgba(0,33,71,0.2)"
                   />
                   <path
                     d="M6 16V8h3.2l2.8 4.5L15.8 8H19v8h-2.2v-4.5L14 13.5 11.2 11V16H6z"
-                    fill="white"
+                    fill="#002147"
                   />
                 </svg>
               </div>
               <div>
-                <h1 className="text-lg font-semibold text-gray-900">
+                <h1 className="text-lg font-semibold text-[#002147]">
                   Login to Naagrik
                 </h1>
-                <p className="text-sm text-gray-500">
+                <p className="text-sm text-gray-600">
                   Access your account to report and track issues
                 </p>
               </div>
@@ -103,7 +103,8 @@ export default function Login(props) {
                 <span className="text-sm font-medium text-gray-700">Email</span>
                 <input
                   type="email"
-                  className="mt-1 block w-full rounded-md border-gray-200 border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-300"
+                  autoComplete="email"
+                  className="mt-1 block w-full rounded-md border-gray-200 border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#F4C430]"
                   placeholder="you@example.com"
                   {...register("email", { required: true })}
                 />
@@ -122,7 +123,8 @@ export default function Login(props) {
                 <div className="mt-1 relative">
                   <input
                     type="password"
-                    className="block w-full rounded-md border-gray-200 border px-3 py-2 pr-10 focus:outline-none focus:ring-2 focus:ring-indigo-300"
+                    autoComplete="current-password"
+                    className="block w-full rounded-md border-gray-200 border px-3 py-2 pr-10 focus:outline-none focus:ring-2 focus:ring-[#F4C430]"
                     placeholder="Enter your password"
                     {...register("password", { required: true })}
                   />
@@ -137,7 +139,7 @@ export default function Login(props) {
               <div className="flex items-center justify-end mb-4">
                 <a
                   href="#"
-                  className="text-sm text-indigo-600 hover:underline"
+                  className="text-sm text-[#F4C430] hover:underline"
                 >
                   Forgot password?
                 </a>
@@ -146,7 +148,7 @@ export default function Login(props) {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full inline-flex items-center justify-center gap-2 px-4 py-2 rounded-md bg-gradient-to-r from-indigo-600 to-pink-500 text-white font-medium hover:opacity-95 transition"
+                className="w-full inline-flex items-center justify-center gap-2 px-4 py-2 rounded-md bg-[#F4C430] text-[#002147] font-medium hover:bg-[#E6B800] transition"
               >
                 {loading ? (
                   <>
@@ -210,11 +212,11 @@ export default function Login(props) {
             </div>
           </div>
 
-          <div className="bg-gray-50 px-6 py-4 text-center text-sm text-gray-600">
+          <div className="bg-gray-100 px-6 py-4 text-center text-sm text-gray-600">
             New here?{" "}
             <button
               type="button"
-              className="text-indigo-600 hover:underline"
+              className="text-[#002147] font-semibold hover:underline"
               onClick={props.onSignupClick}
             >
               Create an account

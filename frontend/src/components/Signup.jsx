@@ -71,30 +71,40 @@ export default function Signup() {
   // Load Google Identity Services script and render button
   const googleBtnRef = useRef(null);
   useEffect(() => {
+    const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+    if (!googleClientId || googleClientId === 'YOUR_GOOGLE_CLIENT_ID_HERE') {
+      console.warn('Google Client ID not configured. Google Sign-In will not work.');
+      return;
+    }
+    
     if (!window.google) {
       const script = document.createElement("script");
       script.src = "https://accounts.google.com/gsi/client";
       script.async = true;
       script.onload = () => {
         window.google.accounts.id.initialize({
-          client_id: "YOUR_GOOGLE_CLIENT_ID",
+          client_id: googleClientId,
           callback: handleGoogleSignup,
         });
-        window.google.accounts.id.renderButton(
-          googleBtnRef.current,
-          { theme: "outline", size: "large", text: "signup_with" }
-        );
+        if (googleBtnRef.current) {
+          window.google.accounts.id.renderButton(
+            googleBtnRef.current,
+            { theme: "outline", size: "large", text: "signup_with" }
+          );
+        }
       };
       document.body.appendChild(script);
     } else {
       window.google.accounts.id.initialize({
-        client_id: "YOUR_GOOGLE_CLIENT_ID",
+        client_id: googleClientId,
         callback: handleGoogleSignup,
       });
-      window.google.accounts.id.renderButton(
-        googleBtnRef.current,
-        { theme: "outline", size: "large", text: "signup_with" }
-      );
+      if (googleBtnRef.current) {
+        window.google.accounts.id.renderButton(
+          googleBtnRef.current,
+          { theme: "outline", size: "large", text: "signup_with" }
+        );
+      }
     }
   }, []);
 
@@ -103,14 +113,14 @@ export default function Signup() {
 
   return (
     
-    <div className="min-h-screen  flex items-center justify-center bg-gradient-to-b from-indigo-50 via-purple-50 to-pink-50 py-12 px-4 relative overflow-hidden">
+    <div className="min-h-screen  flex items-center justify-center bg-[#002147] py-12 px-4 relative overflow-hidden">
 
       {/* Animated Background Elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         {/* Large floating shapes */}
-        <div className="absolute top-10 left-10 w-72 h-72 bg-gradient-to-r from-purple-300/20 to-indigo-400/20 rounded-full blur-3xl animate-float-slow"></div>
-        <div className="absolute bottom-10 right-10 w-96 h-96 bg-gradient-to-r from-pink-300/20 to-purple-400/20 rounded-full blur-3xl animate-float-reverse"></div>
-        <div className="absolute top-1/2 left-1/3 w-48 h-48 bg-gradient-to-r from-blue-300/15 to-cyan-400/15 rounded-full blur-2xl animate-pulse-slow"></div>
+        <div className="absolute top-10 left-10 w-72 h-72 bg-gradient-to-r from-[#F4C430]/20 to-[#E6B800]/20 rounded-full blur-3xl animate-float-slow"></div>
+        <div className="absolute bottom-10 right-10 w-96 h-96 bg-gradient-to-r from-[#F4C430]/15 to-[#E6B800]/15 rounded-full blur-3xl animate-float-reverse"></div>
+        <div className="absolute top-1/2 left-1/3 w-48 h-48 bg-gradient-to-r from-[#F4C430]/10 to-[#E6B800]/10 rounded-full blur-2xl animate-pulse-slow"></div>
         
         {/* Floating particles */}
         {[...Array(15)].map((_, i) => (
@@ -129,24 +139,24 @@ export default function Signup() {
         ))}
         
         {/* Moving geometric shapes */}
-        <div className="absolute top-1/4 right-1/4 w-20 h-20 bg-gradient-to-r from-indigo-400/25 to-purple-500/25 rounded-lg rotate-45 animate-rotate-slow"></div>
-        <div className="absolute bottom-1/3 left-1/4 w-16 h-16 bg-gradient-to-r from-pink-400/25 to-red-500/25 rounded-full animate-bounce-gentle"></div>
+        <div className="absolute top-1/4 right-1/4 w-20 h-20 bg-gradient-to-r from-[#F4C430]/25 to-[#E6B800]/25 rounded-lg rotate-45 animate-rotate-slow"></div>
+        <div className="absolute bottom-1/3 left-1/4 w-16 h-16 bg-gradient-to-r from-[#F4C430]/25 to-[#E6B800]/25 rounded-full animate-bounce-gentle"></div>
       </div>
       
       <div className="w-full max-w-md  relative z-10">
-        <div className="bg-white shadow-lg  rounded-2xl overflow-hidden">
+        <div className="bg-white/95 shadow-lg  rounded-2xl overflow-hidden">
           <div className="p-6 sm:p-8">
             <div className="flex items-center gap-4 mb-4">
-              <div className="w-12 h-12 flex items-center justify-center rounded-full bg-gradient-to-br from-indigo-400 via-purple-500 to-pink-400">
+              <div className="w-12 h-12 flex items-center justify-center rounded-full bg-[#F4C430]">
                 {/* simple inline logo */}
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
-                  <rect x="1" y="1" width="22" height="22" rx="5" fill="rgba(255,255,255,0.12)" />
-                  <path d="M6 16V8h3.2l2.8 4.5L15.8 8H19v8h-2.2v-4.5L14 13.5 11.2 11V16H6z" fill="white" />
+                  <rect x="1" y="1" width="22" height="22" rx="5" fill="rgba(0,33,71,0.2)" />
+                  <path d="M6 16V8h3.2l2.8 4.5L15.8 8H19v8h-2.2v-4.5L14 13.5 11.2 11V16H6z" fill="#002147" />
                 </svg>
               </div>
               <div>
-                <h1 className="text-lg font-semibold text-gray-900">Sign in to Naagrik</h1>
-                <p className="text-sm text-gray-500">Report issues and track resolutions</p>
+                <h1 className="text-lg font-semibold text-[#002147]">Sign in to Naagrik</h1>
+                <p className="text-sm text-gray-600">Report issues and track resolutions</p>
               </div>
               <div className="ml-auto text-gray-700 hover:text-gray-900  text-xl cursor-pointer rounded-full p-1 transition shadow-2xl shadow-blue-700">
                 <Link to="/" > X </Link>
@@ -169,7 +179,7 @@ export default function Signup() {
                 <span className="text-sm font-medium text-gray-700">UserName</span>
                 <input
                   type="text"
-                  className="mt-1 block w-full rounded-md border-gray-200 border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-300"
+                  className="mt-1 block w-full rounded-md border-gray-200 border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#F4C430]"
                   placeholder="Eneter your username"
                   {...register("username", { required: true })} />
                 {errors.username && <span className='text-sm text-red-500'>This field is required</span>}
@@ -179,7 +189,8 @@ export default function Signup() {
                 <span className="text-sm font-medium text-gray-700">Email</span>
                 <input
                   type="email"
-                  className="mt-1 block w-full rounded-md border-gray-200 border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-300"
+                  autoComplete="email"
+                  className="mt-1 block w-full rounded-md border-gray-200 border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#F4C430]"
                   placeholder="you@example.com"
                   {...register("email", { required: true })} />
                 {errors.email && <span className='text-sm text-red-500'>This field is required</span>}
@@ -191,7 +202,8 @@ export default function Signup() {
                 <div className="mt-1 relative">
                   <input
                     type="password"
-                    className="block w-full rounded-md border-gray-200 border px-3 py-2 pr-10 focus:outline-none focus:ring-2 focus:ring-indigo-300"
+                    autoComplete="new-password"
+                    className="block w-full rounded-md border-gray-200 border px-3 py-2 pr-10 focus:outline-none focus:ring-2 focus:ring-[#F4C430]"
                     placeholder="Enter your password"
                     {...register("password", { required: true })} />
                   {errors.password && <span className='text-sm text-red-500'>This field is required</span>}
@@ -199,13 +211,13 @@ export default function Signup() {
               </label>
 
               <div className="flex items-center justify-end mb-4">
-                <a href="#" className="text-sm text-indigo-600 hover:underline">Forgot password?</a>
+                <a href="#" className="text-sm text-[#F4C430] hover:underline">Forgot password?</a>
               </div>
 
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full inline-flex items-center justify-center gap-2 px-4 py-2 rounded-md bg-gradient-to-r from-indigo-600 to-pink-500 text-white font-medium hover:opacity-95 transition"
+                className="w-full inline-flex items-center justify-center gap-2 px-4 py-2 rounded-md bg-[#F4C430] text-[#002147] font-medium hover:bg-[#E6B800] transition"
               >
                 {loading ? (
                   <>
@@ -239,10 +251,10 @@ export default function Signup() {
             </div>
           </div>
 
-          <div className="mt-4 text-center bg-gray-50 px-6 py-4 text-sm text-gray-600">
+          <div className="mt-4 text-center bg-gray-100 px-6 py-4 text-sm text-gray-600">
             Already have an account?{" "}
             <button
-              className="text-indigo-600 hover:underline"
+              className="text-[#002147] font-semibold hover:underline"
               onClick={() => setShowLogin(true)}
             >
               Login

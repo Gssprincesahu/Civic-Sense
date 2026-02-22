@@ -4,10 +4,9 @@ import cloudinary from '../config/cloudinary.js';
 
 export const createIssue = async (req, res) => {
     try{
-        const { title, category, location, priority, image, description, address, city, state, zipCode, country, coordinates } = req.body;
+        const { title, category, location, priority, description, address, city, state, zipCode, country, coordinates } = req.body;
 
         // Validate required fields
-
         if (!title || !category || !location || !priority || !description) {
             return res.status(400).json({
                 success: false,
@@ -24,8 +23,18 @@ export const createIssue = async (req, res) => {
             imageUrl = req.file.path;
             imagePublicId = req.file.filename;
         }
-        // Create new issue document using Mongoose model
+        
+        // Parse coordinates if sent as string
+        let parsedCoordinates = null;
+        if (coordinates) {
+            try {
+                parsedCoordinates = typeof coordinates === 'string' ? JSON.parse(coordinates) : coordinates;
+            } catch (e) {
+                console.error('Error parsing coordinates:', e);
+            }
+        }
 
+        // Create new issue document using Mongoose model
         const newIssue = new Data({
             title,
             category,
@@ -39,7 +48,7 @@ export const createIssue = async (req, res) => {
             state,
             zipCode,
             country,
-            coordinates
+            coordinates: parsedCoordinates
         });
 
         // Save to MongoDB - This is where data gets stored in the database

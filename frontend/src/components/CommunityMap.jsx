@@ -18,7 +18,7 @@ const createIssueIcon = () => {
   return L.divIcon({
     className: 'custom-marker',
     html: `<div style="
-      background-color: #16a34a; 
+      background-color: #F4C430; 
       width: 30px; 
       height: 30px; 
       border-radius: 50%; 
@@ -27,7 +27,7 @@ const createIssueIcon = () => {
       display: flex;
       align-items: center;
       justify-content: center;
-      color: white;
+      color: #002147;
       font-weight: bold;
       font-size: 16px;
     ">📍</div>`,
@@ -76,10 +76,10 @@ const CommunityMap = () => {
   // ⭐ NEW: Loading state
   if (loading) {
     return (
-      <div className="min-h-screen bg-green-50 flex items-center justify-center">
+      <div className="min-h-screen bg-[#002147] flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-green-700 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading map data...</p>
+          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-[#F4C430] mx-auto mb-4"></div>
+          <p className="text-gray-300">Loading map data...</p>
         </div>
       </div>
     );
@@ -88,13 +88,13 @@ const CommunityMap = () => {
   // ⭐ NEW: Error state
   if (error) {
     return (
-      <div className="min-h-screen bg-green-50 flex items-center justify-center p-8">
-        <div className="max-w-md bg-red-100 border border-red-400 text-red-700 px-6 py-4 rounded">
+      <div className="min-h-screen bg-[#002147] flex items-center justify-center p-8">
+        <div className="max-w-md bg-red-900/30 border border-red-700/50 text-red-300 px-6 py-4 rounded">
           <p className="font-bold">Error</p>
           <p>{error}</p>
           <button 
             onClick={fetchIssues}
-            className="mt-4 bg-red-700 text-white px-4 py-2 rounded hover:bg-red-800"
+            className="mt-4 bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
           >
             Try Again
           </button>
@@ -104,20 +104,20 @@ const CommunityMap = () => {
   }
 
   return (
-    <div className="min-h-screen bg-green-50 flex flex-col items-center justify-center py-10">
-      <h1 className="text-2xl font-bold text-green-700 mb-4">
+    <div className="min-h-screen bg-[#002147] flex flex-col items-center justify-center py-10">
+      <h1 className="text-2xl font-bold text-[#F4C430] mb-4">
         Community Issues Map
       </h1>
 
       {/* ⭐ CHANGE: Updated to show dynamic count */}
-      <p className="text-gray-600 mb-8 text-center max-w-xl">
+      <p className="text-gray-300 mb-8 text-center max-w-xl">
         Reported issues in your area. ({issues.length} issues with location)
       </p>
 
       {/* ⭐ NEW: Refresh button */}
       <button
         onClick={fetchIssues}
-        className="mb-4 bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition"
+        className="mb-4 bg-[#10B981] text-white px-6 py-2 rounded-lg hover:bg-[#059669] transition"
       >
         🔄 Refresh Map 
       </button>
@@ -146,23 +146,35 @@ const CommunityMap = () => {
               >
                 {/* ⭐ NEW: Popup with issue details */}
                 <Popup maxWidth={300}>
-                  <div className="p-2">
-                    <h3 className="font-bold text-lg mb-2 text-green-700">{issue.title}</h3>
+                  <div className="p-2 bg-[#002147] rounded-lg">
+                    <h3 className="font-bold text-lg mb-2 text-[#F4C430]">{issue.title}</h3>
+                    
+                    {/* Image Section */}
+                    {issue.image && issue.image !== 'https://via.placeholder.com/400x300?text=No+Image' && (
+                      <img 
+                        src={issue.image} 
+                        alt={issue.title}
+                        className="w-full h-32 object-cover rounded-lg mb-3 shadow-sm"
+                        onError={(e) => {
+                          e.target.style.display = 'none';
+                        }}
+                      />
+                    )}
                     
                     <div className="mb-2">
-                      <span className="px-2 py-1 rounded text-xs font-semibold uppercase bg-green-100 text-green-700">
+                      <span className="px-2 py-1 rounded text-xs font-semibold uppercase bg-[#F4C430] text-[#002147]">
                         {issue.priority}
                       </span>
                     </div>
                     
-                    <p className="text-sm text-gray-700 mb-2">{issue.description}</p>
+                    <p className="text-sm text-gray-300 mb-2">{issue.description}</p>
                     
-                    <div className="text-xs text-gray-600 space-y-1">
-                      <p><strong>📍 Location:</strong> {issue.location}</p>
-                      <p><strong>🏷️ Category:</strong> {issue.category}</p>
-                      {issue.address && <p><strong>📮 Address:</strong> {issue.address}</p>}
-                      {issue.city && <p><strong>🏙️ City:</strong> {issue.city}</p>}
-                      <p><strong>📅 Reported:</strong> {new Date(issue.createdAt).toLocaleDateString()}</p>
+                    <div className="text-xs text-gray-400 space-y-1">
+                      <p><strong className="text-[#F4C430]">📍 Location:</strong> {issue.location}</p>
+                      <p><strong className="text-[#F4C430]">🏷️ Category:</strong> {issue.category}</p>
+                      {issue.address && <p><strong className="text-[#F4C430]">📮 Address:</strong> {issue.address}</p>}
+                      {issue.city && <p><strong className="text-[#F4C430]">🏙️ City:</strong> {issue.city}</p>}
+                      <p><strong className="text-[#F4C430]">📅 Reported:</strong> {new Date(issue.createdAt).toLocaleDateString()}</p>
                     </div>
                   </div>
                 </Popup>
@@ -174,7 +186,7 @@ const CommunityMap = () => {
 
       {/* ⭐ NEW: Show message if no issues with coordinates */}
       {issues.length === 0 && (
-        <div className="mt-4 p-4 bg-yellow-100 border border-yellow-400 text-yellow-700 rounded text-center">
+        <div className="mt-4 p-4 bg-yellow-900/30 border border-yellow-700/50 text-yellow-300 rounded text-center">
           No issues found with location data.
         </div>
       )}
